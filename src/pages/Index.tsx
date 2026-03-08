@@ -131,10 +131,17 @@ const Index = () => {
         <p className="text-muted-foreground text-lg mb-16">Vision Assistant</p>
 
         <div className="relative">
-          <div className="w-48 h-48 rounded-full bg-primary flex items-center justify-center shadow-glow-strong pulse-ring">
-            <span className="text-2xl font-display font-bold text-primary-foreground tracking-widest">
-              {modelLoading ? "LOADING…" : "START"}
-            </span>
+          <div className={`w-48 h-48 rounded-full flex items-center justify-center shadow-glow-strong pulse-ring ${isInitializing ? 'bg-muted' : 'bg-primary'}`}>
+            {isInitializing ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-display font-bold text-primary tracking-widest">INITIALIZING</span>
+              </div>
+            ) : (
+              <span className="text-2xl font-display font-bold text-primary-foreground tracking-widest">
+                {modelLoading ? "LOADING…" : "START"}
+              </span>
+            )}
           </div>
         </div>
 
