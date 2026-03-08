@@ -25,9 +25,9 @@ export default defineConfig(({ mode }) => ({
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: {
-        name: "HearSee Guide",
-        short_name: "HearSee",
-        description: "AI-powered visual assistance for the visually impaired",
+        name: "Third Eye",
+        short_name: "Third Eye",
+        description: "AI-powered spatial awareness assistant for the visually impaired",
         theme_color: "#1a1a2e",
         background_color: "#1a1a2e",
         display: "standalone",
