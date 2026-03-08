@@ -17,26 +17,36 @@ const Index = () => {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const loopRef = useRef<number | null>(null);
   const describeIntervalRef = useRef<number | null>(null);
+  const isDescribingRef = useRef(false);
+  const audioEnabledRef = useRef(true);
 
-  // Detection loop
+  // Keep refs in sync
+  useEffect(() => { isDescribingRef.current = isDescribing; }, [isDescribing]);
+  useEffect(() => { audioEnabledRef.current = audioEnabled; }, [audioEnabled]);
+
+  // Throttled detection loop - run every 3 frames for efficiency
+  const frameCountRef = useRef(0);
   const runDetection = useCallback(async () => {
     if (!videoRef.current || !modelReady) return;
-    const results = await detect(videoRef.current);
-    if (audioEnabled && results.length > 0) {
-      const largest = results.reduce((a, b) => (a.bbox[2] * a.bbox[3] > b.bbox[2] * b.bbox[3] ? a : b));
-      playBeep(largest.panValue, largest.class);
+    frameCountRef.current++;
+    if (frameCountRef.current % 3 === 0) {
+      const results = await detect(videoRef.current);
+      if (audioEnabledRef.current && results.length > 0) {
+        const largest = results.reduce((a, b) => (a.bbox[2] * a.bbox[3] > b.bbox[2] * b.bbox[3] ? a : b));
+        playBeep(largest.panValue, largest.class);
+      }
     }
     loopRef.current = requestAnimationFrame(runDetection);
-  }, [videoRef, modelReady, detect, audioEnabled, playBeep]);
+  }, [videoRef, modelReady, detect, playBeep]);
 
-  // Auto-describe every 10 seconds
-  const autoDescribe = useCallback(async () => {
-    if (!cameraActive || isDescribing) return;
+  // Auto-describe using ref to avoid stale closure
+  const doDescribe = useCallback(async () => {
+    if (isDescribingRef.current) return;
     const frame = captureFrame();
     if (!frame) return;
     const text = await describe(frame);
-    if (audioEnabled) speak(text);
-  }, [cameraActive, isDescribing, captureFrame, describe, audioEnabled, speak]);
+    if (audioEnabledRef.current) speak(text);
+  }, [captureFrame, describe, speak]);
 
   useEffect(() => {
     if (isRunning && cameraActive && modelReady) {
@@ -50,14 +60,18 @@ const Index = () => {
   // Start auto-describe interval when running
   useEffect(() => {
     if (isRunning && cameraActive) {
-      // Describe immediately on start
-      autoDescribe();
-      describeIntervalRef.current = window.setInterval(autoDescribe, 12000);
+      // Small delay to ensure camera is ready
+      const startTimeout = setTimeout(() => doDescribe(), 2000);
+      describeIntervalRef.current = window.setInterval(doDescribe, 15000);
+      return () => {
+        clearTimeout(startTimeout);
+        if (describeIntervalRef.current) clearInterval(describeIntervalRef.current);
+      };
     }
     return () => {
       if (describeIntervalRef.current) clearInterval(describeIntervalRef.current);
     };
-  }, [isRunning, cameraActive, autoDescribe]);
+  }, [isRunning, cameraActive, doDescribe]);
 
   const handleStart = async () => {
     if (isRunning) return;
@@ -101,7 +115,6 @@ const Index = () => {
         </h1>
         <p className="text-muted-foreground text-lg mb-16">Vision Assistant</p>
 
-        {/* Big circular start button */}
         <div className="relative">
           <div className="w-48 h-48 rounded-full bg-primary flex items-center justify-center shadow-glow-strong pulse-ring">
             <span className="text-2xl font-display font-bold text-primary-foreground tracking-widest">
@@ -118,7 +131,6 @@ const Index = () => {
   // Active scanning view
   return (
     <div className="min-h-screen bg-background flex flex-col" onClick={handleStop}>
-      {/* Header */}
       <header className="px-4 py-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
@@ -140,11 +152,9 @@ const Index = () => {
         </button>
       </header>
 
-      {/* Camera */}
       <main className="flex-1 px-4 py-4 flex flex-col gap-3 max-w-2xl mx-auto w-full">
         <CameraView videoRef={videoRef} detections={detections} isActive={cameraActive} />
 
-        {/* Detections */}
         {detections.length > 0 && (
           <div className="bg-card rounded-lg border border-border p-3">
             <h2 className="text-xs font-mono text-muted-foreground mb-2">DETECTED OBJECTS</h2>
@@ -164,7 +174,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Auto description */}
         {(description || isDescribing) && (
           <div className="bg-card rounded-lg border border-accent/30 p-4">
             <h2 className="text-xs font-mono text-accent mb-2">ENVIRONMENT</h2>

@@ -32,16 +32,19 @@ export function useCamera() {
     setIsActive(false);
   }, []);
 
+  // Capture frame with compression for smaller payload
   const captureFrame = useCallback((): string | null => {
     const video = videoRef.current;
     if (!video || !isActive) return null;
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Resize to 480px wide max for faster upload & processing
+    const scale = Math.min(1, 480 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    ctx.drawImage(video, 0, 0);
-    return canvas.toDataURL("image/jpeg", 0.7);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.6);
   }, [isActive]);
 
   useEffect(() => {
