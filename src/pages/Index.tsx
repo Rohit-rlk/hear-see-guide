@@ -15,6 +15,7 @@ const Index = () => {
   const { isDescribing, description, describe } = useDescribeEnvironment();
   const [isRunning, setIsRunning] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
   const loopRef = useRef<number | null>(null);
   const describeIntervalRef = useRef<number | null>(null);
   const isDescribingRef = useRef(false);
