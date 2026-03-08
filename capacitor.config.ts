@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.0fdd34f5bbb04b9f82e339dd26d54e46',
+  appId: 'app.lovable.hearseeguide',
   appName: 'hear-see-guide',
   webDir: 'dist',
   server: {
