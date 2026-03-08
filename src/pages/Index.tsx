@@ -15,6 +15,7 @@ const Index = () => {
   const { isDescribing, description, describe } = useDescribeEnvironment();
   const [isRunning, setIsRunning] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false);
   const loopRef = useRef<number | null>(null);
   const describeIntervalRef = useRef<number | null>(null);
   const isDescribingRef = useRef(false);
@@ -74,18 +75,18 @@ const Index = () => {
 
   // CRITICAL: getUserMedia called directly in click handler for browser security
   const handleStart = async () => {
-    if (isRunning || modelLoading) return;
+    if (isRunning || modelLoading || isInitializing) return;
+    setIsInitializing(true);
     try {
-      // Step 1: Get camera FIRST - directly in click handler
       await startCamera();
-      // Step 2: Load model (can be async, doesn't need gesture)
       await loadModel();
-      // Step 3: Activate
       setIsRunning(true);
       speak("Third Eye activated. Scanning environment.");
     } catch (err) {
       console.error("Failed to start:", err);
       toast({ title: "Error", description: "Failed to start camera. Please allow camera permissions.", variant: "destructive" });
+    } finally {
+      setIsInitializing(false);
     }
   };
 
@@ -130,10 +131,17 @@ const Index = () => {
         <p className="text-muted-foreground text-lg mb-16">Vision Assistant</p>
 
         <div className="relative">
-          <div className="w-48 h-48 rounded-full bg-primary flex items-center justify-center shadow-glow-strong pulse-ring">
-            <span className="text-2xl font-display font-bold text-primary-foreground tracking-widest">
-              {modelLoading ? "LOADING…" : "START"}
-            </span>
+          <div className={`w-48 h-48 rounded-full flex items-center justify-center shadow-glow-strong pulse-ring ${isInitializing ? 'bg-muted' : 'bg-primary'}`}>
+            {isInitializing ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-display font-bold text-primary tracking-widest">INITIALIZING</span>
+              </div>
+            ) : (
+              <span className="text-2xl font-display font-bold text-primary-foreground tracking-widest">
+                {modelLoading ? "LOADING…" : "START"}
+              </span>
+            )}
           </div>
         </div>
 
@@ -200,11 +208,21 @@ const Index = () => {
           </div>
         )}
 
-        {(description || isDescribing) && (
+        {isDescribing && !description && (
+          <div className="bg-card rounded-lg border border-accent/30 p-4 flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <div>
+              <h2 className="text-xs font-mono text-accent mb-1">ENVIRONMENT</h2>
+              <p className="text-muted-foreground text-sm">Analyzing surroundings…</p>
+            </div>
+          </div>
+        )}
+
+        {description && (
           <div className="bg-card rounded-lg border border-accent/30 p-4">
             <h2 className="text-xs font-mono text-accent mb-2">ENVIRONMENT</h2>
             <p className="text-secondary-foreground text-sm leading-relaxed">
-              {isDescribing ? "Analyzing environment…" : description}
+              {isDescribing ? "Updating…" : description}
             </p>
           </div>
         )}
