@@ -9,7 +9,13 @@ export function useDescribeEnvironment() {
     setIsDescribing(true);
     setDescription(null);
     try {
-      const base64 = imageDataUrl.split(",")[1];
+      const base64 = imageDataUrl.includes(",") ? imageDataUrl.split(",")[1] : imageDataUrl;
+      if (!base64 || base64.length < 100) {
+        console.warn("Skipping describe: image data too small", base64?.length);
+        const fallback = "Camera is still initializing, please wait.";
+        setDescription(fallback);
+        return fallback;
+      }
       const { data, error } = await supabase.functions.invoke("describe-environment", {
         body: { image: base64 },
       });

@@ -42,11 +42,13 @@ const Index = () => {
   // Auto-describe using ref to avoid stale closure
   const doDescribe = useCallback(async () => {
     if (isDescribingRef.current) return;
+    const video = videoRef.current;
+    if (!video || video.readyState < 2 || !video.videoWidth) return;
     const frame = captureFrame();
     if (!frame) return;
     const text = await describe(frame);
     if (audioEnabledRef.current) speak(text);
-  }, [captureFrame, describe, speak]);
+  }, [captureFrame, describe, speak, videoRef]);
 
   useEffect(() => {
     if (isRunning && cameraActive && modelReady) {
