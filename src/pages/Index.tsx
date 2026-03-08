@@ -20,11 +20,9 @@ const Index = () => {
   const isDescribingRef = useRef(false);
   const audioEnabledRef = useRef(true);
 
-  // Keep refs in sync
   useEffect(() => { isDescribingRef.current = isDescribing; }, [isDescribing]);
   useEffect(() => { audioEnabledRef.current = audioEnabled; }, [audioEnabled]);
 
-  // Throttled detection loop - run every 3 frames for efficiency
   const frameCountRef = useRef(0);
   const runDetection = useCallback(async () => {
     if (!videoRef.current || !modelReady) return;
@@ -39,7 +37,6 @@ const Index = () => {
     loopRef.current = requestAnimationFrame(runDetection);
   }, [videoRef, modelReady, detect, playBeep]);
 
-  // Auto-describe using ref to avoid stale closure
   const doDescribe = useCallback(async () => {
     if (isDescribingRef.current) return;
     const video = videoRef.current;
@@ -50,6 +47,7 @@ const Index = () => {
     if (audioEnabledRef.current) speak(text);
   }, [captureFrame, describe, speak, videoRef]);
 
+  // Start detection loop when ready
   useEffect(() => {
     if (isRunning && cameraActive && modelReady) {
       loopRef.current = requestAnimationFrame(runDetection);
@@ -62,8 +60,7 @@ const Index = () => {
   // Start auto-describe interval when running
   useEffect(() => {
     if (isRunning && cameraActive) {
-      // Small delay to ensure camera is ready
-      const startTimeout = setTimeout(() => doDescribe(), 2000);
+      const startTimeout = setTimeout(() => doDescribe(), 3000);
       describeIntervalRef.current = window.setInterval(doDescribe, 15000);
       return () => {
         clearTimeout(startTimeout);
@@ -75,21 +72,36 @@ const Index = () => {
     };
   }, [isRunning, cameraActive, doDescribe]);
 
+  // CRITICAL: getUserMedia called directly in click handler for browser security
   const handleStart = async () => {
-    if (isRunning) return;
-    speak("Third Eye activated. Scanning environment.");
-    await startCamera();
-    await loadModel();
-    setIsRunning(true);
+    if (isRunning || modelLoading) return;
+    try {
+      // Step 1: Get camera FIRST - directly in click handler
+      await startCamera();
+      // Step 2: Load model (can be async, doesn't need gesture)
+      await loadModel();
+      // Step 3: Activate
+      setIsRunning(true);
+      speak("Third Eye activated. Scanning environment.");
+    } catch (err) {
+      console.error("Failed to start:", err);
+      toast({ title: "Error", description: "Failed to start camera. Please allow camera permissions.", variant: "destructive" });
+    }
   };
 
-  const handleStop = () => {
-    if (loopRef.current) cancelAnimationFrame(loopRef.current);
-    if (describeIntervalRef.current) clearInterval(describeIntervalRef.current);
+  const handleStop = useCallback(() => {
+    if (loopRef.current) {
+      cancelAnimationFrame(loopRef.current);
+      loopRef.current = null;
+    }
+    if (describeIntervalRef.current) {
+      clearInterval(describeIntervalRef.current);
+      describeIntervalRef.current = null;
+    }
     stopCamera();
     setIsRunning(false);
     speak("Third Eye deactivated");
-  };
+  }, [stopCamera, speak]);
 
   useEffect(() => {
     if (cameraError) {
@@ -132,7 +144,7 @@ const Index = () => {
 
   // Active scanning view
   return (
-    <div className="min-h-screen bg-background flex flex-col" onClick={handleStop}>
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="px-4 py-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
@@ -141,17 +153,29 @@ const Index = () => {
           <h1 className="text-lg font-display font-bold text-foreground">Third Eye</h1>
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setAudioEnabled(!audioEnabled);
-            speak(audioEnabled ? "Audio muted" : "Audio enabled");
-          }}
-          className="p-2 rounded-lg bg-secondary text-secondary-foreground"
-          aria-label={audioEnabled ? "Mute" : "Unmute"}
-        >
-          {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setAudioEnabled(!audioEnabled);
+              speak(audioEnabled ? "Audio muted" : "Audio enabled");
+            }}
+            className="p-2 rounded-lg bg-secondary text-secondary-foreground"
+            aria-label={audioEnabled ? "Mute" : "Unmute"}
+          >
+            {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleStop();
+            }}
+            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground font-display font-bold text-sm"
+            aria-label="Stop scanning"
+          >
+            STOP
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 px-4 py-4 flex flex-col gap-3 max-w-2xl mx-auto w-full">
@@ -184,8 +208,6 @@ const Index = () => {
             </p>
           </div>
         )}
-
-        <p className="text-center text-muted-foreground text-xs mt-auto pb-4">Tap anywhere to stop</p>
       </main>
     </div>
   );
