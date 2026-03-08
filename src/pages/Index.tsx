@@ -75,18 +75,18 @@ const Index = () => {
 
   // CRITICAL: getUserMedia called directly in click handler for browser security
   const handleStart = async () => {
-    if (isRunning || modelLoading) return;
+    if (isRunning || modelLoading || isInitializing) return;
+    setIsInitializing(true);
     try {
-      // Step 1: Get camera FIRST - directly in click handler
       await startCamera();
-      // Step 2: Load model (can be async, doesn't need gesture)
       await loadModel();
-      // Step 3: Activate
       setIsRunning(true);
       speak("Third Eye activated. Scanning environment.");
     } catch (err) {
       console.error("Failed to start:", err);
       toast({ title: "Error", description: "Failed to start camera. Please allow camera permissions.", variant: "destructive" });
+    } finally {
+      setIsInitializing(false);
     }
   };
 
