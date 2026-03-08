@@ -45,7 +45,7 @@ const Install = () => {
         <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
         <h1 className="text-2xl font-bold mb-2">App Installed!</h1>
         <p className="text-muted-foreground text-center">
-          HearSee Guide is installed on your device. Open it from your home screen.
+          Third Eye is installed on your device. Open it from your home screen.
         </p>
       </div>
     );
@@ -54,7 +54,7 @@ const Install = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-6">
       <Smartphone className="w-16 h-16 text-primary mb-6" />
-      <h1 className="text-3xl font-bold mb-2">Install HearSee Guide</h1>
+      <h1 className="text-3xl font-bold mb-2">Install Third Eye</h1>
       <p className="text-muted-foreground text-center mb-8 max-w-sm">
         Install this app on your phone for the best experience — works offline and launches instantly.
       </p>
