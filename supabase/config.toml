@@ -1,0 +1,4 @@
+project_id = "bhhvoikwdgelbbqxfehi"
+
+[functions.describe-environment]
+verify_jwt = false
