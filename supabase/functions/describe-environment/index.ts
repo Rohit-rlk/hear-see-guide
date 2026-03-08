@@ -32,19 +32,19 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-pro",
         messages: [
           {
             role: "system",
             content:
-              "You are an accessibility assistant for visually impaired users. Describe the environment captured in the image in 2-3 concise sentences. Focus on: obstacles, people, objects, pathways, and potential hazards. Use spatial references (left, right, ahead, behind). Be clear, specific, and helpful for navigation.",
+              "You are a precise accessibility assistant for visually impaired users navigating in real-time. Describe EXACTLY what is in the image in 2-3 concise sentences. Be extremely accurate — never guess or hallucinate objects that aren't clearly visible. Focus on: 1) Immediate obstacles and hazards (stairs, curbs, poles, vehicles), 2) People and their positions, 3) Pathways and walkable areas, 4) Important signs or landmarks. Use clear spatial directions (left, right, ahead, behind, close, far). Prioritize safety-critical information first.",
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Describe what you see in this image for a visually impaired person navigating this space.",
+                text: "Describe what you see in this image for a visually impaired person navigating this space. Be precise and accurate.",
               },
               {
                 type: "image_url",
@@ -55,6 +55,7 @@ serve(async (req) => {
             ],
           },
         ],
+        max_tokens: 200,
       }),
     });
 
