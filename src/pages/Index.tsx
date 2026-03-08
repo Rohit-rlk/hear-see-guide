@@ -114,12 +114,7 @@ const Index = () => {
   if (!isRunning) {
     return (
       <div
-        className="min-h-screen bg-background flex flex-col items-center justify-center px-6 cursor-pointer select-none"
-        onClick={handleStart}
-        role="button"
-        aria-label="Tap to start Third Eye"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleStart()}
+        className="min-h-screen bg-background flex flex-col items-center justify-center px-6 select-none"
       >
         <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-strong mb-8">
           <Eye className="w-10 h-10 text-primary-foreground" />
