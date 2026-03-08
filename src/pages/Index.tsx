@@ -114,12 +114,7 @@ const Index = () => {
   if (!isRunning) {
     return (
       <div
-        className="min-h-screen bg-background flex flex-col items-center justify-center px-6 cursor-pointer select-none"
-        onClick={handleStart}
-        role="button"
-        aria-label="Tap to start Third Eye"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleStart()}
+        className="min-h-screen bg-background flex flex-col items-center justify-center px-6 select-none"
       >
         <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-strong mb-8">
           <Eye className="w-10 h-10 text-primary-foreground" />
@@ -131,7 +126,12 @@ const Index = () => {
         <p className="text-muted-foreground text-lg mb-16">Vision Assistant</p>
 
         <div className="relative">
-          <div className={`w-48 h-48 rounded-full flex items-center justify-center shadow-glow-strong pulse-ring ${isInitializing ? 'bg-muted' : 'bg-primary'}`}>
+          <button
+            onClick={handleStart}
+            disabled={isInitializing || modelLoading}
+            aria-label="Start Third Eye"
+            className={`w-48 h-48 rounded-full flex items-center justify-center shadow-glow-strong pulse-ring cursor-pointer border-none ${isInitializing ? 'bg-muted' : 'bg-primary'}`}
+          >
             {isInitializing ? (
               <div className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -142,10 +142,10 @@ const Index = () => {
                 {modelLoading ? "LOADING…" : "START"}
               </span>
             )}
-          </div>
+          </button>
         </div>
 
-        <p className="text-muted-foreground mt-10 text-sm">Tap to detect objects</p>
+        <p className="text-muted-foreground mt-10 text-sm">Tap the button to detect objects</p>
       </div>
     );
   }
