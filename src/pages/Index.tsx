@@ -208,11 +208,21 @@ const Index = () => {
           </div>
         )}
 
-        {(description || isDescribing) && (
+        {isDescribing && !description && (
+          <div className="bg-card rounded-lg border border-accent/30 p-4 flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <div>
+              <h2 className="text-xs font-mono text-accent mb-1">ENVIRONMENT</h2>
+              <p className="text-muted-foreground text-sm">Analyzing surroundings…</p>
+            </div>
+          </div>
+        )}
+
+        {description && (
           <div className="bg-card rounded-lg border border-accent/30 p-4">
             <h2 className="text-xs font-mono text-accent mb-2">ENVIRONMENT</h2>
             <p className="text-secondary-foreground text-sm leading-relaxed">
-              {isDescribing ? "Analyzing environment…" : description}
+              {isDescribing ? "Updating…" : description}
             </p>
           </div>
         )}
