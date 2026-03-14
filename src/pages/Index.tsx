@@ -156,7 +156,7 @@ const Index = () => {
       <header className="px-4 py-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-            <img src={thirdEyeLogo} alt="Third Eye" className="w-5 h-5" />
+            <Eye className="w-4 h-4 text-primary-foreground" />
           </div>
           <h1 className="text-lg font-display font-bold text-foreground">Third Eye</h1>
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
