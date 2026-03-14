@@ -118,7 +118,7 @@ const Index = () => {
         className="min-h-screen bg-background flex flex-col items-center justify-center px-6 select-none"
       >
         <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-strong mb-8">
-          <Eye className="w-10 h-10 text-primary-foreground" />
+          <img src={thirdEyeLogo} alt="Third Eye" className="w-12 h-12" />
         </div>
 
         <h1 className="text-4xl font-display font-bold text-foreground tracking-wider mb-2">
