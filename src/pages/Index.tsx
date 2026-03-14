@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Eye, Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX } from "lucide-react";
+import thirdEyeLogo from "@/assets/third-eye-logo.png";
 import { CameraView } from "@/components/CameraView";
 import { useCamera } from "@/hooks/useCamera";
 import { useObjectDetection } from "@/hooks/useObjectDetection";
@@ -117,7 +118,7 @@ const Index = () => {
         className="min-h-screen bg-background flex flex-col items-center justify-center px-6 select-none"
       >
         <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow-strong mb-8">
-          <Eye className="w-10 h-10 text-primary-foreground" />
+          <img src={thirdEyeLogo} alt="Third Eye" className="w-12 h-12" />
         </div>
 
         <h1 className="text-4xl font-display font-bold text-foreground tracking-wider mb-2">
@@ -156,7 +157,7 @@ const Index = () => {
       <header className="px-4 py-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-            <Eye className="w-4 h-4 text-primary-foreground" />
+            <img src={thirdEyeLogo} alt="Third Eye" className="w-5 h-5" />
           </div>
           <h1 className="text-lg font-display font-bold text-foreground">Third Eye</h1>
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
