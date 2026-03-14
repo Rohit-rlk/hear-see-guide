@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Volume2, VolumeX } from "lucide-react";
-import thirdEyeLogo from "@/assets/third-eye-logo.png";
+import { Eye, Volume2, VolumeX } from "lucide-react";
 import { CameraView } from "@/components/CameraView";
 import { useCamera } from "@/hooks/useCamera";
 import { useObjectDetection } from "@/hooks/useObjectDetection";
